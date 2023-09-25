@@ -136,143 +136,29 @@ def load_all_media():
         
 
         amount_of_scrolling_down += 1
-        print(f"scrolling down for {amount_of_scrolling_down} time")   
+        print(f"scrolling down for {amount_of_scrolling_down} time") 
+
         # Si la posición no ha cambiado, significa que llegamos al final
         if nueva_posicion == posicion_anterior:
             break
 
-def get_time_post(post):
-    time_ago = ""
-    publish_date = ""
-
-    try:
-        time_ago_element = post.find_element(By.CSS_SELECTOR, "[data-click-id='timestamp']")
-        time_ago = time_ago_element.get_attribute("innerHTML")
-
-        # actions = ActionChains(driver)
-        # actions.move_to_element(time_ago_element)
-        # time.sleep(2)
-        # publish_date = driver.find_element(By.XPATH, '//*[@data-popper-escaped]').get_attribute("innerHTML")
-
-
-        # trash_string_position =  publish_date.find("<div>")           
-        # if trash_string_position != -1:  # Si se encontró "<div>"
-        #     time_published = publish_date[:trash_string_position]  
-        
-    except Exception as error:
-        pass
-        # return publish_date, time_ago
-    
-    if time_ago == "":
-        try: 
-            time_element = post.find_element(By.TAG_NAME, "time") 
-            publish_date = time_element.get_attribute("title")
-            time_ago = time_element.text
-        except Exception as error:
-            pass
-
-    return publish_date , time_ago
-
-def process_post_element(post, counter):
-    print(f"interation number #{counter} post = {post}")
-    title = ""
-    video_url = ""
-    amount_of_votes = 0
-    post_url = ""
-    publish_date = ""
-    time_ago = ""    
-
-    # try:
-    #     title = post.find_element(By.TAG_NAME, "h3").get_attribute("innerHTML")
-    #     video_url = post.find_element(By.TAG_NAME,"shreddit-player").get_attribute("src")
-    #     amount_of_votes = post.find_element(By.CSS_SELECTOR, '[id*="vote"]').find_element(By.TAG_NAME, "div").get_attribute("innerHTML")
-    #     post_url = post.find_element(By.TAG_NAME, "h3").find_element(By.XPATH, './ancestor::a').get_attribute("href")
-    #     publish_date, time_ago = get_time_post(post) 
-
-    # except Exception as error:
-    #     pass
-        # logging.error(f"Error when getting element err: {error}")
-
-    # if post_url == "" or title == "":
-    try:
-        title = post.find_element(By.CSS_SELECTOR, "[slot='title']").text  
-        video_url = post.find_element(By.TAG_NAME,"shreddit-player").get_attribute("src")
-        post_url = f"https://www.reddit.com{post.get_attribute('permalink')}"
-        publish_date, time_ago = get_time_post(post) 
-        amount_of_votes = driver.execute_script('return arguments[0].shadowRoot.querySelector("faceplate-number")', post).text
-        # amount_of_votes = post.find_element(By.CSS_SELECTOR, '[id*="vote"]').find_element(By.XPATH, '..').text
-    except Exception as error:
-        return 
-        
-
-    return {
-        "title": title,
-        "publish_date": publish_date,
-        "time_ago": time_ago,
-        "votes": amount_of_votes,
-        "url": video_url,
-        "post_url": post_url
-        }
-
-def get_subreddit_title():
-    try:
-        return driver.find_element(By.XPATH, "//div[starts-with(@class, 'font-bold')]").get_attribute("innerHTML").split("/")[-1]
-    except Exception as error:
-        logging.error(f"Error when getting element err: {error}")
-
-    try:
-        return driver.find_element(By.XPATH, "//h1").get_attribute("innerHTML")
-    except Exception as error:
-        logging.error(f"Error when getting element err: {error}")
-
-    return SUBREDDIT_URL.split("/")[-1]
-
-def get_all_posts():
-    posts = []
-    
-    try:
-        posts =  driver.find_elements(By.XPATH, '//shreddit-post') # find all posts
-    except Exception as error:
-        logging.error(f"Error when getting element err: {error}")
-
-    try:
-        if len(posts) == 0:
-            posts = driver.find_elements(By.CSS_SELECTOR, '[data-testid="post-container"]') # find all posts
-    except Exception as error:
-        logging.error(f"Error when getting element err: {error}")
-    
-    return posts
-
-
 def scrap_sub_redit():
     logging.info('scrapping sub_reddit')
-    amount_of_posts = 0
-    video_posts = []
     
-    subreddit_title = get_subreddit_title()
-    post_container_elements = get_all_posts()
-    
-    amount_of_posts = len(post_container_elements)
-    logging.info(f'scrap_sub_redit - amout of post #{amount_of_posts}')
-    
-    with futures.ThreadPoolExecutor(max_workers=1000) as executor:
-        # Lanzar el bucle en paralelo
-        results = list(executor.map(process_post_element, post_container_elements, range(len(post_container_elements))))
-        video_posts = [video for video in results if video is not None]
-        executor.shutdown()
+    with open('scrapper_script.js', 'r') as scrapper_script:
+        js_code = scrapper_script.read()
+        scrapper_details_data = driver.execute_script(js_code)
 
     return {
-        "subreddit_title": subreddit_title,
-        "amount_of_posts" : amount_of_posts + 1,
-        "amount_of_videos_post": len(video_posts),
+        **scrapper_details_data,
         "last_date_updated": datetime.datetime.now().isoformat(),
-        "video_posts": video_posts
     }   
 
 def get_scraping_details():
     logging.info("getting scrappign details")
     load_all_media()
     scraping_ditails =  scrap_sub_redit()
+
     driver.quit()
     return scraping_ditails
 

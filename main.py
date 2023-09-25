@@ -15,6 +15,8 @@ if __name__ == '__main__':
     logging.info(f'initiating script at {init_datetime}')
     
     scraping_details = get_scraping_details()
+    logging.info(f'all info scrapped at  {datetime.datetime.now().isoformat()}')
+    
     dir_storage = f"{STORAGE_PATH}/{scraping_details.get('subreddit_title')}" #title[2:]  redits name come like r/SubRedit...  estamos eliminado los dos primeros caracteres  
 
     util.create_dir(dir_storage)
