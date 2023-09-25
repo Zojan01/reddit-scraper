@@ -1,4 +1,3 @@
-import json
 import time
 import logging
 import requests
@@ -33,7 +32,7 @@ def download_specific_videos(dir_name,videos):
         except:
             continue
 
-        time.sleep(20)
+        time.sleep(10)
 
 
 def dowload_videos(dir_name, video_posts, last_details_json):
@@ -50,7 +49,7 @@ def dowload_videos(dir_name, video_posts, last_details_json):
         url = video.get("url")
         votes = video.get("votes")
 
-        file_name = f"{title}-{publish_date}"
+        file_name = f"{title}-{publish_date}-{votes}"
 
         try:
             video_page = requests.get(url, proxies=proxies)
