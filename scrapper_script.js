@@ -1,12 +1,11 @@
 function formatDate(dateString){
-    // Estamos recibiendo una fecha tipo "Sunday, September 17, 2023 at 11:29:01 PM AST"
-    // Primero, parsear la fecha
+    // Where are reciving a date  like "Sunday, September 17, 2023 at 11:29:01 PM AST"
+    // first, parse the date
     let dateParts = dateString.split(" at ");
     let dateWithOutZone = dateParts[0];
     
     let fechaParseada = new Date(dateWithOutZone);
     
-    // Obtener los componentes de la fecha
     let dia = fechaParseada.getDate().toString().padStart(2, '0');
     let mes = (fechaParseada.getMonth() + 1).toString().padStart(2, '0');
     let año = fechaParseada.getFullYear();
@@ -14,7 +13,7 @@ function formatDate(dateString){
     let minutos = fechaParseada.getMinutes().toString().padStart(2, '0');
     let segundos = fechaParseada.getSeconds().toString().padStart(2, '0');
     
-    // Formatear la fecha en el formato deseado
+    // Format the date to the desire result
     return `${año}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
 };
 

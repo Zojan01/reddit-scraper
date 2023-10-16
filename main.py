@@ -1,20 +1,22 @@
+import sys
 import time
 import datetime
 import logging
 import util as util
 import storage as storage
 import downloader as downloader
-from scraper import get_scraping_details
+from scraper import scrap_subreddit
 
 STORAGE_PATH =  "/home/zangetsu/Videos/from-scraping/reddit"
 
 if __name__ == '__main__':
     init_datetime = datetime.datetime.now().isoformat()
     starting_time = time.time()
+    subreddit_url = sys.argv[0]
 
     logging.info(f'initiating script at {init_datetime}')
     
-    scraping_details = get_scraping_details()
+    scraping_details = scrap_subreddit(subreddit_url)
     logging.info(f'all info scrapped at  {datetime.datetime.now().isoformat()}')
     
     dir_storage = f"{STORAGE_PATH}/{scraping_details.get('subreddit_title')}" #title[2:]  redits name come like r/SubRedit...  estamos eliminado los dos primeros caracteres  
